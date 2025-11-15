@@ -84,9 +84,11 @@ async function handleFieldChange(field: DetectedField, text: string): Promise<vo
     return; // Settings not available
   }
 
-  // Check if extension is enabled
-  if (!settings.extensionEnabled) {
-    return;
+  // T088: Check if extension is disabled during analysis (graceful cancellation)
+  // Re-check settings to handle case where extension is disabled during analysis
+  const currentSettings = await getSettings();
+  if (!currentSettings || !currentSettings.extensionEnabled) {
+    return; // Extension disabled, cancel gracefully
   }
 
   // Check if website is disabled
@@ -228,11 +230,30 @@ function initialize(): void {
   // Initialize field detection
   fieldDetector.initialize();
 
-  // Cleanup on page unload
+  // Cleanup on page unload (T093: Clear ephemeral data on navigation)
   window.addEventListener('beforeunload', () => {
     fieldDetector.cleanup();
     uiInjector.cleanup();
   });
+  
+  // T093: Also cleanup on navigation (SPA support)
+  let lastUrl = window.location.href;
+  const checkNavigation = () => {
+    const currentUrl = window.location.href;
+    if (currentUrl !== lastUrl) {
+      lastUrl = currentUrl;
+      // Clear ephemeral data on navigation
+      fieldDetector.cleanup();
+      uiInjector.cleanup();
+      // Re-initialize for new page
+      setTimeout(() => {
+        fieldDetector.initialize();
+      }, 100);
+    }
+  };
+  
+  // Check for navigation periodically (for SPA)
+  setInterval(checkNavigation, 500);
 }
 
 // Initialize when DOM is ready

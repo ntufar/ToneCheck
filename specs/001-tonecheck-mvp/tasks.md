@@ -248,38 +248,38 @@ Phase 6 (Polish & Cross-Cutting)
 
 ### Accessibility
 
-- [ ] T081 [P] Add keyboard navigation support for all interactive elements in `/Users/ntufar/projects/ToneCheck/src/content/tone-indicator.ts`
-- [ ] T082 [P] Add screen reader descriptions (ARIA labels) for tone indicators in `/Users/ntufar/projects/ToneCheck/src/content/tone-indicator.ts`
-- [ ] T083 [P] Ensure color contrast meets 4.5:1 minimum ratio in `/Users/ntufar/projects/ToneCheck/src/content/tone-indicator.ts`
-- [ ] T084 [P] Add keyboard navigation for popup and options pages in `/Users/ntufar/projects/ToneCheck/src/popup/settings-form.ts` and `/Users/ntufar/projects/ToneCheck/src/options/options.ts`
+- [X] T081 [P] Add keyboard navigation support for all interactive elements in `/Users/ntufar/projects/ToneCheck/src/content/tone-indicator.ts`
+- [X] T082 [P] Add screen reader descriptions (ARIA labels) for tone indicators in `/Users/ntufar/projects/ToneCheck/src/content/tone-indicator.ts`
+- [X] T083 [P] Ensure color contrast meets 4.5:1 minimum ratio in `/Users/ntufar/projects/ToneCheck/src/content/tone-indicator.ts`
+- [X] T084 [P] Add keyboard navigation for popup and options pages in `/Users/ntufar/projects/ToneCheck/src/popup/settings-form.ts` and `/Users/ntufar/projects/ToneCheck/src/options/options.ts`
 
 ### Error Handling & Edge Cases
 
-- [ ] T085 [P] Handle dynamically loaded content (SPA text field injection) in `/Users/ntufar/projects/ToneCheck/src/content/field-detector.ts`
-- [ ] T086 [P] Handle iframe text fields (cross-origin detection) in `/Users/ntufar/projects/ToneCheck/src/content/field-detector.ts`
-- [ ] T087 [P] Skip password fields and sensitive input types in `/Users/ntufar/projects/ToneCheck/src/content/field-detector.ts`
-- [ ] T088 [P] Handle extension disabled during analysis (graceful cancellation) in `/Users/ntufar/projects/ToneCheck/src/background/message-handler.ts`
-- [ ] T089 [P] Handle network failures and timeouts gracefully in `/Users/ntufar/projects/ToneCheck/src/background/api-client.ts`
-- [ ] T090 [P] Handle special characters, emojis, and formatting in text analysis in `/Users/ntufar/projects/ToneCheck/src/background/api-client.ts`
+- [X] T085 [P] Handle dynamically loaded content (SPA text field injection) in `/Users/ntufar/projects/ToneCheck/src/content/field-detector.ts`
+- [X] T086 [P] Handle iframe text fields (cross-origin detection) in `/Users/ntufar/projects/ToneCheck/src/content/field-detector.ts`
+- [X] T087 [P] Skip password fields and sensitive input types in `/Users/ntufar/projects/ToneCheck/src/content/field-detector.ts`
+- [X] T088 [P] Handle extension disabled during analysis (graceful cancellation) in `/Users/ntufar/projects/ToneCheck/src/background/message-handler.ts`
+- [X] T089 [P] Handle network failures and timeouts gracefully in `/Users/ntufar/projects/ToneCheck/src/background/api-client.ts`
+- [X] T090 [P] Handle special characters, emojis, and formatting in text analysis in `/Users/ntufar/projects/ToneCheck/src/background/api-client.ts`
 
 ### Performance & Optimization
 
-- [ ] T091 [P] Optimize content script injection (minimize DOM queries) in `/Users/ntufar/projects/ToneCheck/src/content/field-detector.ts`
-- [ ] T092 [P] Implement in-memory caching for API responses (<5 seconds) in `/Users/ntufar/projects/ToneCheck/src/background/api-client.ts`
-- [ ] T093 [P] Clear ephemeral data on page navigation in `/Users/ntufar/projects/ToneCheck/src/content/field-detector.ts`
-- [ ] T094 [P] Optimize bundle size (tree shaking, minification) in `/Users/ntufar/projects/ToneCheck/`
+- [X] T091 [P] Optimize content script injection (minimize DOM queries) in `/Users/ntufar/projects/ToneCheck/src/content/field-detector.ts`
+- [X] T092 [P] Implement in-memory caching for API responses (<5 seconds) in `/Users/ntufar/projects/ToneCheck/src/background/api-client.ts`
+- [X] T093 [P] Clear ephemeral data on page navigation in `/Users/ntufar/projects/ToneCheck/src/content/field-detector.ts`
+- [X] T094 [P] Optimize bundle size (tree shaking, minification) in `/Users/ntufar/projects/ToneCheck/`
 
 ### Testing & Quality
 
-- [ ] T095 [P] Write unit tests for field detector in `/Users/ntufar/projects/ToneCheck/tests/unit/content/field-detector.test.ts`
+- [X] T095 [P] Write unit tests for field detector in `/Users/ntufar/projects/ToneCheck/tests/unit/content/field-detector.test.ts`
 - [ ] T096 [P] Write unit tests for API client in `/Users/ntufar/projects/ToneCheck/tests/unit/background/api-client.test.ts`
-- [ ] T097 [P] Write unit tests for rate limiter in `/Users/ntufar/projects/ToneCheck/tests/unit/background/rate-limiter.test.ts`
-- [ ] T098 [P] Write unit tests for storage layer in `/Users/ntufar/projects/ToneCheck/tests/unit/background/storage.test.ts`
-- [ ] T099 [P] Write unit tests for encryption utilities in `/Users/ntufar/projects/ToneCheck/tests/unit/shared/encryption.test.ts`
-- [ ] T100 [P] Write contract tests for Perspective API integration in `/Users/ntufar/projects/ToneCheck/tests/contract/perspective-api.test.ts`
+- [X] T097 [P] Write unit tests for rate limiter in `/Users/ntufar/projects/ToneCheck/tests/unit/background/rate-limiter.test.ts`
+- [X] T098 [P] Write unit tests for storage layer in `/Users/ntufar/projects/ToneCheck/tests/unit/background/storage.test.ts`
+- [X] T099 [P] Write unit tests for encryption utilities in `/Users/ntufar/projects/ToneCheck/tests/unit/shared/encryption.test.ts`
+- [X] T100 [P] Write contract tests for Perspective API integration in `/Users/ntufar/projects/ToneCheck/tests/contract/perspective-api.test.ts`
 - [ ] T101 [P] Write contract tests for Claude API integration in `/Users/ntufar/projects/ToneCheck/tests/contract/claude-api.test.ts`
 - [ ] T102 [P] Write contract tests for Gemini API integration in `/Users/ntufar/projects/ToneCheck/tests/contract/gemini-api.test.ts`
-- [ ] T103 [P] Write integration tests for end-to-end analysis flow in `/Users/ntufar/projects/ToneCheck/tests/integration/analysis-flow.test.ts`
+- [X] T103 [P] Write integration tests for end-to-end analysis flow in `/Users/ntufar/projects/ToneCheck/tests/integration/analysis-flow.test.ts`
 - [ ] T104 [P] Write integration tests for suggestion flow in `/Users/ntufar/projects/ToneCheck/tests/integration/suggestion-flow.test.ts`
 
 ## Parallel Execution Examples

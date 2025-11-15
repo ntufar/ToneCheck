@@ -25,9 +25,38 @@ export function initializeSettingsForm(): void {
   cancelButton.addEventListener('click', () => {
     window.close();
   });
+  
+  // Add keyboard navigation support
+  cancelButton.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      window.close();
+    }
+  });
 
   // Show privacy notice on first-time setup
   checkFirstTimeSetup(privacyNotice);
+  
+  // Add ARIA labels to form elements
+  const toneApiKeyInput = document.getElementById('api-key-tone') as HTMLInputElement;
+  const suggestionsApiKeyInput = document.getElementById('api-key-suggestions') as HTMLInputElement;
+  const providerSelect = document.getElementById('suggestion-provider') as HTMLSelectElement;
+  const thresholdSelect = document.getElementById('sensitivity-threshold') as HTMLSelectElement;
+  
+  if (toneApiKeyInput) {
+    toneApiKeyInput.setAttribute('aria-label', 'Perspective API key for tone analysis');
+    toneApiKeyInput.setAttribute('aria-describedby', 'tone-api-key-help');
+  }
+  if (suggestionsApiKeyInput) {
+    suggestionsApiKeyInput.setAttribute('aria-label', 'API key for suggestion generation');
+    suggestionsApiKeyInput.setAttribute('aria-describedby', 'suggestions-api-key-help');
+  }
+  if (providerSelect) {
+    providerSelect.setAttribute('aria-label', 'Select suggestion provider');
+  }
+  if (thresholdSelect) {
+    thresholdSelect.setAttribute('aria-label', 'Select sensitivity threshold');
+  }
 }
 
 /**

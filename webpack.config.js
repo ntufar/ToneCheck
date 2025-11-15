@@ -39,6 +39,37 @@ export default {
     })
   ],
   mode: 'production',
-  devtool: 'source-map'
+  devtool: 'source-map',
+  // T094: Optimize bundle size (tree shaking, minification)
+  optimization: {
+    minimize: true,
+    usedExports: true, // Tree shaking: mark unused exports
+    sideEffects: false, // Enable tree shaking for entire modules
+    splitChunks: {
+      chunks: 'all',
+      cacheGroups: {
+        // Extract shared code into common chunk
+        common: {
+          name: 'shared',
+          minChunks: 2,
+          priority: 10,
+          reuseExistingChunk: true
+        },
+        // Separate vendor dependencies
+        vendor: {
+          test: /[\\/]node_modules[\\/]/,
+          name: 'vendors',
+          priority: 20,
+          reuseExistingChunk: true
+        }
+      }
+    }
+  },
+  // Performance hints
+  performance: {
+    hints: 'warning',
+    maxEntrypointSize: 512000, // 500KB
+    maxAssetSize: 512000 // 500KB
+  }
 };
 

@@ -21,10 +21,24 @@ export function initializeOptionsPage(): void {
 
   // Handle save button
   saveButton.addEventListener('click', handleSave);
+  saveButton.setAttribute('aria-label', 'Save settings');
+  saveButton.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      handleSave();
+    }
+  });
 
   // Handle cancel button
   cancelButton.addEventListener('click', () => {
     window.location.reload();
+  });
+  cancelButton.setAttribute('aria-label', 'Cancel and reload page');
+  cancelButton.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      window.location.reload();
+    }
   });
 
   // Handle add website button
@@ -35,6 +49,17 @@ export function initializeOptionsPage(): void {
       newWebsiteInput.value = '';
     }
   });
+  addWebsiteButton.setAttribute('aria-label', 'Add website to disabled list');
+  addWebsiteButton.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      addWebsiteButton.click();
+    }
+  });
+  
+  // Set ARIA attributes for inputs
+  newWebsiteInput.setAttribute('aria-label', 'Website domain to disable');
+  newWebsiteInput.setAttribute('aria-describedby', 'new-website-help');
 
   // Handle Enter key in new website input
   newWebsiteInput.addEventListener('keydown', (e) => {
@@ -150,13 +175,22 @@ function createApiKeySection(
   input.id = inputId;
   input.placeholder = currentValue || 'Enter API key';
   input.style.flex = '1';
+  input.setAttribute('aria-label', `${label} input`);
+  input.setAttribute('aria-describedby', `${inputId}-help`);
   inputContainer.appendChild(input);
 
   const updateButton = document.createElement('button');
   updateButton.type = 'button';
   updateButton.className = 'secondary';
   updateButton.textContent = currentValue ? 'Update' : 'Set';
+  updateButton.setAttribute('aria-label', `${currentValue ? 'Update' : 'Set'} ${label}`);
   updateButton.addEventListener('click', onUpdate);
+  updateButton.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      onUpdate();
+    }
+  });
   inputContainer.appendChild(updateButton);
 
   if (currentValue) {
@@ -164,7 +198,14 @@ function createApiKeySection(
     removeButton.type = 'button';
     removeButton.className = 'danger';
     removeButton.textContent = 'Remove';
+    removeButton.setAttribute('aria-label', `Remove ${label}`);
     removeButton.addEventListener('click', () => removeApiKey(inputId));
+    removeButton.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        removeApiKey(inputId);
+      }
+    });
     inputContainer.appendChild(removeButton);
   }
 
@@ -172,7 +213,9 @@ function createApiKeySection(
 
   const helpEl = document.createElement('div');
   helpEl.className = 'help-text';
-  helpEl.innerHTML = `${helpText}. Get your API key from <a href="${linkUrl}" target="_blank">${linkUrl}</a>`;
+  helpEl.id = `${inputId}-help`;
+  helpEl.setAttribute('aria-live', 'polite');
+  helpEl.innerHTML = `${helpText}. Get your API key from <a href="${linkUrl}" target="_blank" aria-label="${linkUrl} (opens in new tab)">${linkUrl}</a>`;
   section.appendChild(helpEl);
 
   return section;
@@ -277,7 +320,14 @@ function loadDisabledWebsites(websites: string[]): void {
     removeButton.type = 'button';
     removeButton.className = 'danger';
     removeButton.textContent = 'Remove';
+    removeButton.setAttribute('aria-label', `Remove ${website} from disabled list`);
     removeButton.addEventListener('click', () => removeDisabledWebsite(index));
+    removeButton.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        removeDisabledWebsite(index);
+      }
+    });
     item.appendChild(removeButton);
 
     container.appendChild(item);

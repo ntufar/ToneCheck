@@ -75,7 +75,8 @@ async function handleAnalyzeRequest(request: AnalysisRequest): Promise<AnalysisR
   // Check if extension is enabled
   const settings = await getSettingsWithDefaults();
   if (!settings.extensionEnabled) {
-    return createErrorResponse('INVALID_REQUEST', 'Extension is disabled');
+    // T088: Handle extension disabled during analysis (graceful cancellation)
+    return createErrorResponse('EXTENSION_DISABLED', 'Extension is disabled');
   }
 
   // Check if API key is configured

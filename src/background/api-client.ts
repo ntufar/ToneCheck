@@ -3,10 +3,92 @@
  * Handles tone analysis requests and suggestion generation with authentication, error handling, and chunking
  */
 
-import { PERSPECTIVE_API_URL, CLAUDE_API_URL, GEMINI_API_URL, MAX_TEXT_LENGTH, CHUNK_SIZE } from '../shared/constants';
+import { PERSPECTIVE_API_URL, CLAUDE_API_URL, GEMINI_API_URL, MAX_TEXT_LENGTH, CHUNK_SIZE, API_CACHE_TTL_MS } from '../shared/constants';
 import type { ToneAnalysisResult } from '../shared/types';
 import { getToneAnalysisApiKey, getSuggestionsApiKey } from './storage';
 import { rateLimiter } from './rate-limiter';
+
+/**
+ * T092: In-memory cache for API responses (<5 seconds)
+ */
+interface CacheEntry<T> {
+  data: T;
+  timestamp: number;
+}
+
+class ApiCache {
+  private cache: Map<string, CacheEntry<unknown>> = new Map();
+
+  /**
+   * Get cached response if available and not expired
+   */
+  get<T>(key: string): T | null {
+    const entry = this.cache.get(key);
+    if (!entry) {
+      return null;
+    }
+
+    const age = Date.now() - entry.timestamp;
+    if (age > API_CACHE_TTL_MS) {
+      this.cache.delete(key);
+      return null;
+    }
+
+    return entry.data as T;
+  }
+
+  /**
+   * Set cache entry
+   */
+  set<T>(key: string, data: T): void {
+    this.cache.set(key, {
+      data,
+      timestamp: Date.now()
+    });
+  }
+
+  /**
+   * Generate cache key from text
+   */
+  generateKey(text: string, prefix: string = 'analysis'): string {
+    // Use hash of text for cache key (simple implementation)
+    // In production, could use crypto.subtle.digest for better hashing
+    let hash = 0;
+    const normalized = text.normalize('NFC').trim().toLowerCase();
+    for (let i = 0; i < normalized.length; i++) {
+      const char = normalized.charCodeAt(i);
+      hash = ((hash << 5) - hash) + char;
+      hash = hash & hash; // Convert to 32-bit integer
+    }
+    return `${prefix}:${hash}`;
+  }
+
+  /**
+   * Clear expired entries
+   */
+  clearExpired(): void {
+    const now = Date.now();
+    for (const [key, entry] of this.cache.entries()) {
+      if (now - entry.timestamp > API_CACHE_TTL_MS) {
+        this.cache.delete(key);
+      }
+    }
+  }
+
+  /**
+   * Clear all cache entries
+   */
+  clear(): void {
+    this.cache.clear();
+  }
+}
+
+const apiCache = new ApiCache();
+
+// Clean up expired cache entries periodically
+setInterval(() => {
+  apiCache.clearExpired();
+}, API_CACHE_TTL_MS);
 
 interface PerspectiveApiResponse {
   attributeScores: {
@@ -49,6 +131,13 @@ export async function analyzeTone(
   // Log API key status (without exposing the key)
   console.log('Using Perspective API key (length:', apiKey.length, 'chars)');
 
+  // T092: Check cache first
+  const cacheKey = apiCache.generateKey(text, 'perspective');
+  const cachedResult = apiCache.get<PerspectiveApiResponse>(cacheKey);
+  if (cachedResult) {
+    return parseApiResponse(cachedResult, fieldId, requestId);
+  }
+
   // Handle chunking for text >3000 characters
   if (text.length > CHUNK_SIZE) {
     return await analyzeChunkedText(text, fieldId, requestId, apiKey);
@@ -56,8 +145,17 @@ export async function analyzeTone(
 
   // Execute API request through rate limiter
   const result = await rateLimiter.enqueue(async () => {
-    return await callPerspectiveAPI(text, apiKey);
+    // T090: Handle special characters, emojis, and formatting
+    const normalizedText = text
+      .normalize('NFC') // Normalize Unicode characters
+      .replace(/\r\n/g, '\n') // Normalize line endings
+      .replace(/\r/g, '\n');
+    
+    return await callPerspectiveAPI(normalizedText, apiKey);
   });
+
+  // T092: Cache the result
+  apiCache.set(cacheKey, result);
 
   return parseApiResponse(result, fieldId, requestId);
 }
@@ -66,9 +164,16 @@ export async function analyzeTone(
  * Call Perspective API directly
  */
 async function callPerspectiveAPI(text: string, apiKey: string): Promise<PerspectiveApiResponse> {
+  // T090: Handle special characters, emojis, and formatting in text analysis
+  // Perspective API handles UTF-8 encoding, but we ensure text is properly encoded
+  const normalizedText = text
+    .normalize('NFC') // Normalize Unicode characters
+    .replace(/\r\n/g, '\n') // Normalize line endings
+    .replace(/\r/g, '\n');
+  
   const requestBody = {
     comment: {
-      text: text
+      text: normalizedText
     },
     requestedAttributes: {
       TOXICITY: {},
@@ -359,15 +464,32 @@ async function callClaudeAPI(
   },
   apiKey: string
 ): Promise<ClaudeApiResponse> {
-  const response = await fetch(CLAUDE_API_URL, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'x-api-key': apiKey,
-      'anthropic-version': '2023-06-01'
-    },
-    body: JSON.stringify(requestBody)
-  });
+  // T089: Handle network failures and timeouts gracefully
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
+  
+  let response: Response;
+  try {
+    response = await fetch(CLAUDE_API_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': apiKey,
+        'anthropic-version': '2023-06-01'
+      },
+      body: JSON.stringify(requestBody),
+      signal: controller.signal
+    });
+    clearTimeout(timeoutId);
+  } catch (error) {
+    clearTimeout(timeoutId);
+    if (error instanceof Error && error.name === 'AbortError') {
+      throw new Error('Request timeout. Please check your internet connection and try again.');
+    } else if (error instanceof TypeError && error.message.includes('fetch')) {
+      throw new Error('Network error. Please check your internet connection.');
+    }
+    throw error;
+  }
 
   // Handle error responses
   if (!response.ok) {
@@ -476,13 +598,30 @@ async function callGeminiAPI(
 ): Promise<GeminiApiResponse> {
   const url = `${GEMINI_API_URL}?key=${encodeURIComponent(apiKey)}`;
 
-  const response = await fetch(url, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify(requestBody)
-  });
+  // T089: Handle network failures and timeouts gracefully
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
+  
+  let response: Response;
+  try {
+    response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(requestBody),
+      signal: controller.signal
+    });
+    clearTimeout(timeoutId);
+  } catch (error) {
+    clearTimeout(timeoutId);
+    if (error instanceof Error && error.name === 'AbortError') {
+      throw new Error('Request timeout. Please check your internet connection and try again.');
+    } else if (error instanceof TypeError && error.message.includes('fetch')) {
+      throw new Error('Network error. Please check your internet connection.');
+    }
+    throw error;
+  }
 
   // Handle error responses
   if (!response.ok) {

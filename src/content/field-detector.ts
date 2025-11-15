@@ -58,6 +58,9 @@ class FieldDetector {
 
     // Detect generic fields
     this.detectGenericFields();
+    
+    // T086: Attempt to detect iframe fields (same-origin only)
+    this.detectIframeFields();
   }
 
   /**
@@ -113,6 +116,7 @@ class FieldDetector {
 
   /**
    * Check if element is a valid text field
+   * T087: Skip password fields and sensitive input types
    */
   private isValidField(element: HTMLElement): boolean {
     // Skip if already detected
@@ -120,9 +124,14 @@ class FieldDetector {
       return false;
     }
 
-    // Skip password fields
+    // Skip password fields and sensitive input types
     if (element instanceof HTMLInputElement) {
       if (EXCLUDED_INPUT_TYPES.includes(element.type)) {
+        return false;
+      }
+      
+      // T087: Skip password fields explicitly (already in EXCLUDED_INPUT_TYPES, but be explicit)
+      if (element.type === 'password' || element.autocomplete === 'current-password' || element.autocomplete === 'new-password') {
         return false;
       }
     }
@@ -246,10 +255,22 @@ class FieldDetector {
 
   /**
    * Observe dynamically added fields (SPA support)
+   * T085: Handle dynamically loaded content (SPA text field injection)
    */
   private observeDynamicFields(): void {
+    // Use throttled detection to avoid excessive DOM queries
+    let throttleTimer: ReturnType<typeof setTimeout> | null = null;
+    
     this.observer = new MutationObserver(() => {
-      this.detectFields();
+      // Throttle detection to avoid excessive DOM queries (T091)
+      if (throttleTimer) {
+        clearTimeout(throttleTimer);
+      }
+      
+      throttleTimer = setTimeout(() => {
+        this.detectFields();
+        throttleTimer = null;
+      }, 100); // 100ms throttle
     });
 
     this.observer.observe(document.body, {
@@ -257,9 +278,54 @@ class FieldDetector {
       subtree: true
     });
   }
+  
+  /**
+   * T086: Handle iframe text fields (cross-origin detection)
+   * Note: Cross-origin iframes are limited by browser security
+   * This method attempts to detect same-origin iframes
+   */
+  private detectIframeFields(): void {
+    try {
+      const iframes = document.querySelectorAll('iframe');
+      iframes.forEach(iframe => {
+        try {
+          // Only process same-origin iframes (cross-origin will throw)
+          const iframeDoc = iframe.contentDocument || iframe.contentWindow?.document;
+          if (iframeDoc) {
+            // Detect fields in iframe
+            for (const selector of GENERIC_SELECTORS) {
+              const elements = iframeDoc.querySelectorAll<HTMLElement>(selector);
+              elements.forEach(element => {
+                if (this.isValidField(element)) {
+                  // Generate unique field ID for iframe fields
+                  const fieldId = `iframe-${iframe.id || Date.now()}-${this.generateFieldId(element)}`;
+                  element.dataset.tonecheckDetected = 'true';
+                  element.dataset.tonecheckFieldId = fieldId;
+                  
+                  // Register field with iframe context
+                  this.detectedFields.set(fieldId, {
+                    element,
+                    fieldId,
+                    platform: 'iframe'
+                  });
+                }
+              });
+            }
+          }
+        } catch (e) {
+          // Cross-origin iframe - skip silently
+          // Browser security prevents access to cross-origin iframe content
+        }
+      });
+    } catch (error) {
+      // Silently fail iframe detection (security restrictions)
+      console.debug('Iframe field detection skipped:', error);
+    }
+  }
 
   /**
    * Cleanup
+   * T093: Clear ephemeral data on page navigation
    */
   cleanup(): void {
     // Clear all timers
@@ -274,6 +340,15 @@ class FieldDetector {
 
     // Clear callbacks
     this.onChangeCallbacks = [];
+    
+    // T093: Clear detected fields map (ephemeral data)
+    this.detectedFields.clear();
+    
+    // Remove all detection markers
+    document.querySelectorAll('[data-tonecheck-detected]').forEach(el => {
+      delete (el as HTMLElement).dataset.tonecheckDetected;
+      delete (el as HTMLElement).dataset.tonecheckFieldId;
+    });
   }
 
   /**
