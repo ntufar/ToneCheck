@@ -158,33 +158,33 @@ Phase 6 (Polish & Cross-Cutting)
 
 ### US2: Background Worker - Suggestion API Clients
 
-- [ ] T042 [US2] Implement Claude API client for suggestion generation in `/Users/ntufar/projects/ToneCheck/src/background/api-client.ts`
-- [ ] T043 [US2] Implement Gemini API client for suggestion generation in `/Users/ntufar/projects/ToneCheck/src/background/api-client.ts`
-- [ ] T044 [US2] Create suggestion prompt builder (system prompt + user message with context) in `/Users/ntufar/projects/ToneCheck/src/background/api-client.ts`
-- [ ] T045 [US2] Parse suggestion responses (extract 2-3 alternatives from API response) in `/Users/ntufar/projects/ToneCheck/src/background/api-client.ts`
-- [ ] T046 [US2] Add provider selection logic (Claude vs Gemini based on user settings) in `/Users/ntufar/projects/ToneCheck/src/background/api-client.ts`
-- [ ] T047 [US2] Handle suggestion API errors gracefully (timeout, rate limits) in `/Users/ntufar/projects/ToneCheck/src/background/api-client.ts`
+- [X] T042 [US2] Implement Claude API client for suggestion generation in `/Users/ntufar/projects/ToneCheck/src/background/api-client.ts`
+- [X] T043 [US2] Implement Gemini API client for suggestion generation in `/Users/ntufar/projects/ToneCheck/src/background/api-client.ts`
+- [X] T044 [US2] Create suggestion prompt builder (system prompt + user message with context) in `/Users/ntufar/projects/ToneCheck/src/background/api-client.ts`
+- [X] T045 [US2] Parse suggestion responses (extract 2-3 alternatives from API response) in `/Users/ntufar/projects/ToneCheck/src/background/api-client.ts`
+- [X] T046 [US2] Add provider selection logic (Claude vs Gemini based on user settings) in `/Users/ntufar/projects/ToneCheck/src/background/api-client.ts`
+- [X] T047 [US2] Handle suggestion API errors gracefully (timeout, rate limits) in `/Users/ntufar/projects/ToneCheck/src/background/api-client.ts`
 
 ### US2: Background Worker - Suggestion Message Handling
 
-- [ ] T048 [US2] Implement /suggestions message handler in `/Users/ntufar/projects/ToneCheck/src/background/message-handler.ts`
-- [ ] T049 [US2] Validate suggestion requests (text, flaggedAttributes, requestId) in `/Users/ntufar/projects/ToneCheck/src/background/message-handler.ts`
-- [ ] T050 [US2] Route to appropriate suggestion provider (Claude or Gemini) in `/Users/ntufar/projects/ToneCheck/src/background/message-handler.ts`
-- [ ] T051 [US2] Return SuggestionResponse with 2-3 alternatives in `/Users/ntufar/projects/ToneCheck/src/background/message-handler.ts`
+- [X] T048 [US2] Implement /suggestions message handler in `/Users/ntufar/projects/ToneCheck/src/background/message-handler.ts`
+- [X] T049 [US2] Validate suggestion requests (text, flaggedAttributes, requestId) in `/Users/ntufar/projects/ToneCheck/src/background/message-handler.ts`
+- [X] T050 [US2] Route to appropriate suggestion provider (Claude or Gemini) in `/Users/ntufar/projects/ToneCheck/src/background/message-handler.ts`
+- [X] T051 [US2] Return SuggestionResponse with 2-3 alternatives in `/Users/ntufar/projects/ToneCheck/src/background/message-handler.ts`
 
 ### US2: Content Script - Review Interface
 
-- [ ] T052 [US2] Create review interface component (modal/panel) in `/Users/ntufar/projects/ToneCheck/src/content/tone-indicator.ts`
-- [ ] T053 [US2] Implement problematic phrase highlighting in original text in `/Users/ntufar/projects/ToneCheck/src/content/tone-indicator.ts`
-- [ ] T054 [US2] Display suggestion list (2-3 alternatives) in review interface in `/Users/ntufar/projects/ToneCheck/src/content/tone-indicator.ts`
-- [ ] T055 [US2] Implement "Replace with suggestion" action (update text field) in `/Users/ntufar/projects/ToneCheck/src/content/tone-indicator.ts`
-- [ ] T056 [US2] Implement "Send Anyway" dismiss action in `/Users/ntufar/projects/ToneCheck/src/content/tone-indicator.ts`
-- [ ] T057 [US2] Trigger new analysis after text replacement in `/Users/ntufar/projects/ToneCheck/src/content/tone-indicator.ts`
+- [X] T052 [US2] Create review interface component (modal/panel) in `/Users/ntufar/projects/ToneCheck/src/content/tone-indicator.ts`
+- [X] T053 [US2] Implement problematic phrase highlighting in original text in `/Users/ntufar/projects/ToneCheck/src/content/tone-indicator.ts`
+- [X] T054 [US2] Display suggestion list (2-3 alternatives) in review interface in `/Users/ntufar/projects/ToneCheck/src/content/tone-indicator.ts`
+- [X] T055 [US2] Implement "Replace with suggestion" action (update text field) in `/Users/ntufar/projects/ToneCheck/src/content/tone-indicator.ts`
+- [X] T056 [US2] Implement "Send Anyway" dismiss action in `/Users/ntufar/projects/ToneCheck/src/content/tone-indicator.ts`
+- [X] T057 [US2] Trigger new analysis after text replacement in `/Users/ntufar/projects/ToneCheck/src/content/tone-indicator.ts`
 
 ### US2: Integration
 
-- [ ] T058 [US2] Connect flagged message → review interface → suggestion request → display → replace flow in `/Users/ntufar/projects/ToneCheck/src/content/tone-indicator.ts`
-- [ ] T059 [US2] Test end-to-end: aggressive text → flag → review → suggestions → replace in `/Users/ntufar/projects/ToneCheck/`
+- [X] T058 [US2] Connect flagged message → review interface → suggestion request → display → replace flow in `/Users/ntufar/projects/ToneCheck/src/content/tone-indicator.ts`
+- [X] T059 [US2] Test end-to-end: aggressive text → flag → review → suggestions → replace in `/Users/ntufar/projects/ToneCheck/`
 
 ## Phase 5: User Story 3 - Extension Configuration and Privacy (P3)
 
@@ -206,39 +206,39 @@ Phase 6 (Polish & Cross-Cutting)
 
 ### US3: Popup UI
 
-- [ ] T060 [US3] Create popup HTML structure in `/Users/ntufar/projects/ToneCheck/src/popup/popup.html`
-- [ ] T061 [US3] Implement popup TypeScript entry point in `/Users/ntufar/projects/ToneCheck/src/popup/popup.ts`
-- [ ] T062 [US3] Create settings form component (API key inputs, threshold selector) in `/Users/ntufar/projects/ToneCheck/src/popup/settings-form.ts`
-- [ ] T063 [US3] Add privacy notice display (first-time setup) in `/Users/ntufar/projects/ToneCheck/src/popup/settings-form.ts`
-- [ ] T064 [US3] Implement settings load from storage in `/Users/ntufar/projects/ToneCheck/src/popup/settings-form.ts`
-- [ ] T065 [US3] Implement settings save (encrypt API keys before storage) in `/Users/ntufar/projects/ToneCheck/src/popup/settings-form.ts`
-- [ ] T066 [US3] Add validation (API key format, threshold selection) in `/Users/ntufar/projects/ToneCheck/src/popup/settings-form.ts`
+- [X] T060 [US3] Create popup HTML structure in `/Users/ntufar/projects/ToneCheck/src/popup/popup.html`
+- [X] T061 [US3] Implement popup TypeScript entry point in `/Users/ntufar/projects/ToneCheck/src/popup/popup.ts`
+- [X] T062 [US3] Create settings form component (API key inputs, threshold selector) in `/Users/ntufar/projects/ToneCheck/src/popup/settings-form.ts`
+- [X] T063 [US3] Add privacy notice display (first-time setup) in `/Users/ntufar/projects/ToneCheck/src/popup/settings-form.ts`
+- [X] T064 [US3] Implement settings load from storage in `/Users/ntufar/projects/ToneCheck/src/popup/settings-form.ts`
+- [X] T065 [US3] Implement settings save (encrypt API keys before storage) in `/Users/ntufar/projects/ToneCheck/src/popup/settings-form.ts`
+- [X] T066 [US3] Add validation (API key format, threshold selection) in `/Users/ntufar/projects/ToneCheck/src/popup/settings-form.ts`
 
 ### US3: Options Page
 
-- [ ] T067 [US3] Create options HTML structure in `/Users/ntufar/projects/ToneCheck/src/options/options.html`
-- [ ] T068 [US3] Implement options TypeScript entry point in `/Users/ntufar/projects/ToneCheck/src/options/options.ts`
-- [ ] T069 [US3] Create API key manager component (add/update/remove keys) in `/Users/ntufar/projects/ToneCheck/src/options/api-key-manager.ts`
-- [ ] T070 [US3] Implement disabled websites list management (add/remove domains) in `/Users/ntufar/projects/ToneCheck/src/options/options.ts`
-- [ ] T071 [US3] Add extension enable/disable toggle in `/Users/ntufar/projects/ToneCheck/src/options/options.ts`
-- [ ] T072 [US3] Implement suggestion provider selection (Claude vs Gemini) in `/Users/ntufar/projects/ToneCheck/src/options/options.ts`
+- [X] T067 [US3] Create options HTML structure in `/Users/ntufar/projects/ToneCheck/src/options/options.html`
+- [X] T068 [US3] Implement options TypeScript entry point in `/Users/ntufar/projects/ToneCheck/src/options/options.ts`
+- [X] T069 [US3] Create API key manager component (add/update/remove keys) in `/Users/ntufar/projects/ToneCheck/src/options/api-key-manager.ts`
+- [X] T070 [US3] Implement disabled websites list management (add/remove domains) in `/Users/ntufar/projects/ToneCheck/src/options/options.ts`
+- [X] T071 [US3] Add extension enable/disable toggle in `/Users/ntufar/projects/ToneCheck/src/options/options.ts`
+- [X] T072 [US3] Implement suggestion provider selection (Claude vs Gemini) in `/Users/ntufar/projects/ToneCheck/src/options/options.ts`
 
 ### US3: Background Worker - Settings Management
 
-- [ ] T073 [US3] Implement /settings/get message handler in `/Users/ntufar/projects/ToneCheck/src/background/message-handler.ts`
-- [ ] T074 [US3] Implement /settings/update message handler in `/Users/ntufar/projects/ToneCheck/src/background/message-handler.ts`
-- [ ] T075 [US3] Add settings validation (threshold, provider, website domains) in `/Users/ntufar/projects/ToneCheck/src/background/message-handler.ts`
-- [ ] T076 [US3] Integrate encryption for API keys in settings update in `/Users/ntufar/projects/ToneCheck/src/background/message-handler.ts`
+- [X] T073 [US3] Implement /settings/get message handler in `/Users/ntufar/projects/ToneCheck/src/background/message-handler.ts`
+- [X] T074 [US3] Implement /settings/update message handler in `/Users/ntufar/projects/ToneCheck/src/background/message-handler.ts`
+- [X] T075 [US3] Add settings validation (threshold, provider, website domains) in `/Users/ntufar/projects/ToneCheck/src/background/message-handler.ts`
+- [X] T076 [US3] Integrate encryption for API keys in settings update in `/Users/ntufar/projects/ToneCheck/src/background/message-handler.ts`
 
 ### US3: Content Script - Settings Integration
 
-- [ ] T077 [US3] Check extension enabled state before analysis in `/Users/ntufar/projects/ToneCheck/src/content/field-detector.ts`
-- [ ] T078 [US3] Check disabled websites list before analysis in `/Users/ntufar/projects/ToneCheck/src/content/field-detector.ts`
-- [ ] T079 [US3] Apply sensitivity threshold to aggression flagging logic in `/Users/ntufar/projects/ToneCheck/src/content/tone-indicator.ts`
+- [X] T077 [US3] Check extension enabled state before analysis in `/Users/ntufar/projects/ToneCheck/src/content/field-detector.ts`
+- [X] T078 [US3] Check disabled websites list before analysis in `/Users/ntufar/projects/ToneCheck/src/content/field-detector.ts`
+- [X] T079 [US3] Apply sensitivity threshold to aggression flagging logic in `/Users/ntufar/projects/ToneCheck/src/content/tone-indicator.ts`
 
 ### US3: Integration
 
-- [ ] T080 [US3] Test end-to-end: configure settings → verify persistence → verify settings affect analysis behavior in `/Users/ntufar/projects/ToneCheck/`
+- [X] T080 [US3] Test end-to-end: configure settings → verify persistence → verify settings affect analysis behavior in `/Users/ntufar/projects/ToneCheck/`
 
 ## Phase 6: Polish & Cross-Cutting Concerns
 

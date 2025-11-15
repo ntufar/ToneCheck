@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ToneCheck Settings</title>
+  <style>
+    body {
+      width: 400px;
+      padding: 16px;
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      font-size: 14px;
+      color: #111827;
+    }
+    h1 {
+      margin: 0 0 16px 0;
+      font-size: 20px;
+      font-weight: 600;
+    }
+    .form-group {
+      margin-bottom: 16px;
+    }
+    label {
+      display: block;
+      margin-bottom: 4px;
+      font-weight: 500;
+      color: #374151;
+    }
+    input[type="text"],
+    input[type="password"],
+    select {
+      width: 100%;
+      padding: 8px;
+      border: 1px solid #d1d5db;
+      border-radius: 4px;
+      font-size: 14px;
+      box-sizing: border-box;
+    }
+    input:focus,
+    select:focus {
+      outline: none;
+      border-color: #3b82f6;
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+    .help-text {
+      font-size: 12px;
+      color: #6b7280;
+      margin-top: 4px;
+    }
+    button {
+      padding: 8px 16px;
+      border: none;
+      border-radius: 4px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+    button.primary {
+      background-color: #3b82f6;
+      color: white;
+    }
+    button.primary:hover {
+      background-color: #2563eb;
+    }
+    button.secondary {
+      background-color: #f3f4f6;
+      color: #374151;
+    }
+    button.secondary:hover {
+      background-color: #e5e7eb;
+    }
+    .button-group {
+      display: flex;
+      gap: 8px;
+      justify-content: flex-end;
+      margin-top: 16px;
+    }
+    .privacy-notice {
+      background-color: #fef3c7;
+      border: 1px solid #fbbf24;
+      border-radius: 4px;
+      padding: 12px;
+      margin-bottom: 16px;
+      font-size: 13px;
+    }
+    .privacy-notice h3 {
+      margin: 0 0 8px 0;
+      font-size: 14px;
+      font-weight: 600;
+      color: #92400e;
+    }
+    .privacy-notice p {
+      margin: 0;
+      color: #78350f;
+    }
+    .error {
+      color: #dc2626;
+      font-size: 12px;
+      margin-top: 4px;
+    }
+    .success {
+      color: #10b981;
+      font-size: 12px;
+      margin-top: 4px;
+    }
+  </style>
+</head>
+<body>
+  <h1>ToneCheck Settings</h1>
+  
+  <div id="privacy-notice" class="privacy-notice" style="display: none;">
+    <h3>Privacy Notice</h3>
+    <p>Your API keys are encrypted and stored locally. Text analysis is performed by external services (Perspective API, Claude API, or Gemini API) using your own API credentials. No text is permanently stored after analysis.</p>
+  </div>
+
+  <form id="settings-form">
+    <div class="form-group">
+      <label for="api-key-tone">Perspective API Key (for tone analysis)</label>
+      <input type="password" id="api-key-tone" placeholder="Enter your Perspective API key">
+      <div class="help-text">Get your API key from <a href="https://developers.perspectiveapi.com/" target="_blank">developers.perspectiveapi.com</a></div>
+      <div id="error-tone" class="error" style="display: none;"></div>
+    </div>
+
+    <div class="form-group">
+      <label for="api-key-suggestions">Suggestion API Key (Claude or Gemini)</label>
+      <input type="password" id="api-key-suggestions" placeholder="Enter your API key">
+      <div class="help-text">
+        Get your API key from:
+        <a href="https://console.anthropic.com/" target="_blank">Anthropic (Claude)</a> or
+        <a href="https://ai.google.dev/" target="_blank">Google (Gemini)</a>
+      </div>
+      <div id="error-suggestions" class="error" style="display: none;"></div>
+    </div>
+
+    <div class="form-group">
+      <label for="suggestion-provider">Suggestion Provider</label>
+      <select id="suggestion-provider">
+        <option value="gemini">Gemini (Free tier available)</option>
+        <option value="claude">Claude (Paid, high quality)</option>
+      </select>
+      <div class="help-text">Choose which service to use for generating text suggestions</div>
+    </div>
+
+    <div class="form-group">
+      <label for="sensitivity-threshold">Sensitivity Threshold</label>
+      <select id="sensitivity-threshold">
+        <option value="low">Low (70%+ aggression)</option>
+        <option value="medium" selected>Medium (50%+ aggression)</option>
+        <option value="high">High (30%+ aggression)</option>
+      </select>
+      <div class="help-text">Lower threshold = more sensitive detection</div>
+    </div>
+
+    <div class="button-group">
+      <button type="button" id="cancel-button" class="secondary">Cancel</button>
+      <button type="submit" id="save-button" class="primary">Save Settings</button>
+    </div>
+
+    <div id="save-status"></div>
+  </form>
+
+  <script src="popup.js"></script>
+</body>
+</html>
+

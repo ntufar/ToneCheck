@@ -1,5 +1,6 @@
 import path from 'path';
 import { fileURLToPath } from 'url';
+import CopyWebpackPlugin from 'copy-webpack-plugin';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -28,6 +29,15 @@ export default {
   resolve: {
     extensions: ['.ts', '.js']
   },
+  plugins: [
+    new CopyWebpackPlugin({
+      patterns: [
+        { from: 'src/manifest.json', to: 'manifest.json' },
+        { from: 'src/popup/popup.html', to: 'popup/popup.html' },
+        { from: 'src/options/options.html', to: 'options/options.html' }
+      ]
+    })
+  ],
   mode: 'production',
   devtool: 'source-map'
 };

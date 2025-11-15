@@ -72,17 +72,21 @@ export async function encrypt(plaintext: string, password: string = 'tonecheck-d
     {
       name: ALGORITHM,
       iv: iv
-    },
+    } as AesGcmParams,
     key,
     data
   );
   
   // Combine IV and ciphertext, then base64 encode
-  const combined = new Uint8Array(iv.length + encrypted.byteLength);
+  const encryptedArray = new Uint8Array(encrypted);
+  const combined = new Uint8Array(iv.length + encryptedArray.length);
   combined.set(iv, 0);
-  combined.set(new Uint8Array(encrypted), iv.length);
+  combined.set(encryptedArray, iv.length);
   
-  return btoa(String.fromCharCode(...combined));
+  // Convert to regular array for btoa
+  const combinedArray = Array.from(combined);
+  
+  return btoa(String.fromCharCode(...combinedArray));
 }
 
 /**

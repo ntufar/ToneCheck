@@ -10,7 +10,7 @@ import { initializeMessageHandler } from './message-handler';
 initializeMessageHandler();
 
 // Handle extension installation
-browser.runtime.onInstalled.addListener((details) => {
+browser.runtime.onInstalled.addListener((details: browser.Runtime.OnInstalledDetailsType) => {
   if (details.reason === 'install') {
     console.log('ToneCheck extension installed');
     // TODO: Show welcome/onboarding in Phase 5

@@ -83,11 +83,14 @@ export async function getToneAnalysisApiKey(): Promise<string | null> {
   const settings = await getSettings();
   
   if (!settings || !settings.apiKeyToneAnalysis) {
+    console.log('No tone analysis API key found in settings');
     return null;
   }
   
   try {
-    return await decrypt(settings.apiKeyToneAnalysis);
+    const decrypted = await decrypt(settings.apiKeyToneAnalysis);
+    console.log('Tone analysis API key decrypted successfully (length:', decrypted.length, 'chars)');
+    return decrypted;
   } catch (error) {
     console.error('Error decrypting tone analysis API key:', error);
     return null;
@@ -118,31 +121,66 @@ export async function getSuggestionsApiKey(): Promise<string | null> {
  * @param updates - Partial settings update (API keys will be encrypted)
  */
 export async function updateSettings(updates: Partial<UserSettings>): Promise<UserSettings> {
-  const currentSettings = await getSettingsWithDefaults();
-  
-  const newSettings: UserSettings = {
-    ...currentSettings,
-    ...updates
-  };
-  
-  // Encrypt API keys if provided
-  if (updates.apiKeyToneAnalysis !== undefined) {
-    if (updates.apiKeyToneAnalysis) {
-      newSettings.apiKeyToneAnalysis = await encrypt(updates.apiKeyToneAnalysis);
-    } else {
-      newSettings.apiKeyToneAnalysis = undefined;
+  try {
+    console.log('updateSettings called with updates:', { ...updates, apiKeyToneAnalysis: updates.apiKeyToneAnalysis ? '***' : undefined, apiKeySuggestions: updates.apiKeySuggestions ? '***' : undefined });
+    
+    const currentSettings = await getSettingsWithDefaults();
+    console.log('Current settings loaded');
+    
+    // Start with current settings, but only merge non-API-key fields from updates
+    // API keys need special handling to avoid overwriting existing encrypted keys
+    const newSettings: UserSettings = {
+      ...currentSettings,
+      // Only merge non-API-key fields
+      suggestionProvider: updates.suggestionProvider ?? currentSettings.suggestionProvider,
+      sensitivityThreshold: updates.sensitivityThreshold ?? currentSettings.sensitivityThreshold,
+      disabledWebsites: updates.disabledWebsites ?? currentSettings.disabledWebsites,
+      extensionEnabled: updates.extensionEnabled ?? currentSettings.extensionEnabled,
+      // Keep existing API keys unless explicitly updated
+      apiKeyToneAnalysis: currentSettings.apiKeyToneAnalysis,
+      apiKeySuggestions: currentSettings.apiKeySuggestions
+    };
+    
+    // Encrypt API keys if provided (only update if explicitly provided)
+    if (updates.apiKeyToneAnalysis !== undefined) {
+      if (updates.apiKeyToneAnalysis) {
+        console.log('Encrypting tone analysis API key...');
+        try {
+          newSettings.apiKeyToneAnalysis = await encrypt(updates.apiKeyToneAnalysis);
+          console.log('Tone analysis API key encrypted successfully');
+        } catch (error) {
+          console.error('Error encrypting tone analysis API key:', error);
+          throw new Error('Failed to encrypt tone analysis API key: ' + (error instanceof Error ? error.message : 'Unknown error'));
+        }
+      } else {
+        // Explicitly set to undefined to remove the key
+        newSettings.apiKeyToneAnalysis = undefined;
+      }
     }
-  }
-  
-  if (updates.apiKeySuggestions !== undefined) {
-    if (updates.apiKeySuggestions) {
-      newSettings.apiKeySuggestions = await encrypt(updates.apiKeySuggestions);
-    } else {
-      newSettings.apiKeySuggestions = undefined;
+    
+    if (updates.apiKeySuggestions !== undefined) {
+      if (updates.apiKeySuggestions) {
+        console.log('Encrypting suggestions API key...');
+        try {
+          newSettings.apiKeySuggestions = await encrypt(updates.apiKeySuggestions);
+          console.log('Suggestions API key encrypted successfully');
+        } catch (error) {
+          console.error('Error encrypting suggestions API key:', error);
+          throw new Error('Failed to encrypt suggestions API key: ' + (error instanceof Error ? error.message : 'Unknown error'));
+        }
+      } else {
+        // Explicitly set to undefined to remove the key
+        newSettings.apiKeySuggestions = undefined;
+      }
     }
+    
+    console.log('Saving settings to storage...');
+    await saveSettings(newSettings);
+    console.log('Settings saved successfully');
+    return newSettings;
+  } catch (error) {
+    console.error('Error in updateSettings:', error);
+    throw error;
   }
-  
-  await saveSettings(newSettings);
-  return newSettings;
 }
 
