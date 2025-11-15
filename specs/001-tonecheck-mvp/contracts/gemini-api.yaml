@@ -1,0 +1,248 @@
+openapi: 3.0.3
+info:
+  title: Gemini API Integration
+  description: |
+    Contract for integrating with Google Gemini API for generating alternative text suggestions.
+    Used by ToneCheck to provide users with improved phrasings that maintain intent while improving tone.
+    Gemini offers a free tier, making it an accessible alternative to Claude API.
+  version: 1.0.0
+  contact:
+    name: Google Gemini API Documentation
+    url: https://ai.google.dev/docs
+
+servers:
+  - url: https://generativelanguage.googleapis.com/v1beta
+    description: Gemini API production server
+
+paths:
+  /models/{model}:generateContent:
+    post:
+      summary: Generate alternative text suggestions
+      description: |
+        Sends text to Gemini API with a prompt to generate 2-3 alternative phrasings
+        that maintain the original intent while improving tone.
+      operationId: generateSuggestions
+      parameters:
+        - name: model
+          in: path
+          required: true
+          schema:
+            type: string
+            enum:
+              - gemini-1.5-flash
+              - gemini-1.5-pro
+            default: gemini-1.5-flash
+          description: Gemini model to use (Flash recommended for cost/performance)
+        - name: key
+          in: query
+          required: true
+          schema:
+            type: string
+          description: User-provided Gemini API key
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SuggestionRequest'
+            examples:
+              basic:
+                value:
+                  contents:
+                    - parts:
+                        - text: "You are a helpful assistant that rewrites text to maintain the original intent while improving tone. Your goal is to make text sound more professional, respectful, and less aggressive without changing the core message.\n\nThe following text was flagged as potentially aggressive. Please provide 2-3 alternative phrasings that maintain the original intent but use a more appropriate, professional tone:\n\nThis is terrible and you should fix it immediately!\n\n[Context: This text was flagged for: toxicity with a score of 75%]\n\nProvide only the alternative phrasings, one per line, without explanations."
+                  generationConfig:
+                    temperature: 0.7
+                    maxOutputTokens: 500
+      responses:
+        '200':
+          description: Successful suggestion generation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuggestionResponse'
+              examples:
+                success:
+                  value:
+                    candidates:
+                      - content:
+                          parts:
+                            - text: "1. This needs to be addressed and fixed as soon as possible.\n2. I'd appreciate it if you could look into fixing this issue.\n3. Could we work together to resolve this problem?"
+                        finishReason: STOP
+                    usageMetadata:
+                      promptTokenCount: 150
+                      candidatesTokenCount: 45
+                      totalTokenCount: 195
+        '400':
+          description: Invalid request (missing content, invalid format)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Invalid or missing API key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '429':
+          description: Rate limit exceeded (15 RPM for free tier)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+components:
+  schemas:
+    SuggestionRequest:
+      type: object
+      required:
+        - contents
+      properties:
+        contents:
+          type: array
+          items:
+            $ref: '#/components/schemas/Content'
+          description: Array of content parts (typically single content with prompt)
+        generationConfig:
+          type: object
+          properties:
+            temperature:
+              type: number
+              format: float
+              minimum: 0.0
+              maximum: 2.0
+              default: 0.7
+              description: Temperature for response creativity (0.7 recommended for balanced output)
+            maxOutputTokens:
+              type: integer
+              minimum: 1
+              maximum: 8192
+              default: 500
+              description: Maximum tokens in response (500 sufficient for 2-3 suggestions)
+            topP:
+              type: number
+              format: float
+              description: Top-p sampling parameter (optional)
+            topK:
+              type: integer
+              description: Top-k sampling parameter (optional)
+
+    Content:
+      type: object
+      required:
+        - parts
+      properties:
+        parts:
+          type: array
+          items:
+            $ref: '#/components/schemas/Part'
+          description: Content parts (text blocks)
+        role:
+          type: string
+          enum:
+            - user
+            - model
+          description: Content role (user for prompts)
+
+    Part:
+      type: object
+      required:
+        - text
+      properties:
+        text:
+          type: string
+          description: Text content of the part
+
+    SuggestionResponse:
+      type: object
+      properties:
+        candidates:
+          type: array
+          items:
+            $ref: '#/components/schemas/Candidate'
+          description: Generated suggestions (typically single candidate)
+        usageMetadata:
+          type: object
+          properties:
+            promptTokenCount:
+              type: integer
+              description: Number of tokens in prompt
+            candidatesTokenCount:
+              type: integer
+              description: Number of tokens in response
+            totalTokenCount:
+              type: integer
+              description: Total tokens used
+
+    Candidate:
+      type: object
+      properties:
+        content:
+          type: object
+          properties:
+            parts:
+              type: array
+              items:
+                $ref: '#/components/schemas/Part'
+              description: Generated text suggestions
+            role:
+              type: string
+              enum:
+                - model
+              description: Response role
+        finishReason:
+          type: string
+          enum:
+            - STOP
+            - MAX_TOKENS
+            - SAFETY
+            - RECITATION
+          description: Reason generation stopped
+        safetyRatings:
+          type: array
+          items:
+            $ref: '#/components/schemas/SafetyRating'
+          description: Safety ratings for the response
+
+    SafetyRating:
+      type: object
+      properties:
+        category:
+          type: string
+          description: Safety category
+        probability:
+          type: string
+          enum:
+            - NEGLIGIBLE
+            - LOW
+            - MEDIUM
+            - HIGH
+          description: Safety probability level
+
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: object
+          properties:
+            code:
+              type: integer
+              description: HTTP status code
+            message:
+              type: string
+              description: Error message
+            status:
+              type: string
+              description: Error status string
+
+tags:
+  - name: Suggestions
+    description: Text suggestion generation operations
+

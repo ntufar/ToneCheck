@@ -1,0 +1,204 @@
+openapi: 3.0.3
+info:
+  title: Perspective API Integration
+  description: |
+    Contract for integrating with Perspective API (Jigsaw/Google) for tone analysis.
+    This API analyzes text for toxicity, insults, threats, and profanity.
+  version: 1.0.0
+  contact:
+    name: Perspective API Documentation
+    url: https://developers.perspectiveapi.com/s/docs
+
+servers:
+  - url: https://commentanalyzer.googleapis.com/v1alpha1
+    description: Perspective API production server
+
+paths:
+  /comments:analyze:
+    post:
+      summary: Analyze text for toxic attributes
+      description: |
+        Analyzes the provided text and returns scores for various toxicity attributes.
+        Used by ToneCheck to detect aggressive or problematic language.
+      operationId: analyzeTone
+      security:
+        - ApiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AnalyzeRequest'
+            examples:
+              basic:
+                value:
+                  comment:
+                    text: "This is a test message"
+                  requestedAttributes:
+                    TOXICITY: {}
+                    SEVERE_TOXICITY: {}
+                    IDENTITY_ATTACK: {}
+                    INSULT: {}
+                    PROFANITY: {}
+                    THREAT: {}
+                  languages:
+                    - en
+      responses:
+        '200':
+          description: Successful analysis
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AnalyzeResponse'
+              examples:
+                success:
+                  value:
+                    attributeScores:
+                      TOXICITY:
+                        summaryScore:
+                          value: 0.15
+                      SEVERE_TOXICITY:
+                        summaryScore:
+                          value: 0.02
+                      IDENTITY_ATTACK:
+                        summaryScore:
+                          value: 0.01
+                      INSULT:
+                        summaryScore:
+                          value: 0.12
+                      PROFANITY:
+                        summaryScore:
+                          value: 0.05
+                      THREAT:
+                        summaryScore:
+                          value: 0.01
+        '400':
+          description: Invalid request (missing text, invalid format)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Invalid or missing API key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '429':
+          description: Rate limit exceeded (1 QPS for free tier)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: query
+      name: key
+      description: User-provided Perspective API key
+
+  schemas:
+    AnalyzeRequest:
+      type: object
+      required:
+        - comment
+        - requestedAttributes
+      properties:
+        comment:
+          type: object
+          required:
+            - text
+          properties:
+            text:
+              type: string
+              description: Text content to analyze
+              maxLength: 20000
+              example: "This is a test message"
+        requestedAttributes:
+          type: object
+          description: Attributes to analyze
+          properties:
+            TOXICITY:
+              type: object
+              description: General toxicity score
+            SEVERE_TOXICITY:
+              type: object
+              description: Severe toxicity score
+            IDENTITY_ATTACK:
+              type: object
+              description: Identity attack score
+            INSULT:
+              type: object
+              description: Insult score
+            PROFANITY:
+              type: object
+              description: Profanity score
+            THREAT:
+              type: object
+              description: Threat score
+        languages:
+          type: array
+          items:
+            type: string
+          description: Language codes (e.g., ["en"])
+          default: ["en"]
+        doNotStore:
+          type: boolean
+          description: Request that comment not be stored
+          default: true
+
+    AnalyzeResponse:
+      type: object
+      properties:
+        attributeScores:
+          type: object
+          description: Scores for each requested attribute
+          additionalProperties:
+            type: object
+            properties:
+              summaryScore:
+                type: object
+                properties:
+                  value:
+                    type: number
+                    format: float
+                    minimum: 0.0
+                    maximum: 1.0
+                    description: Score value (0.0 = not toxic, 1.0 = highly toxic)
+                  type:
+                    type: string
+                    description: Score type (typically "PROBABILITY")
+        languages:
+          type: array
+          items:
+            type: string
+          description: Detected language codes
+
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: object
+          properties:
+            code:
+              type: integer
+              description: HTTP status code
+            message:
+              type: string
+              description: Error message
+            status:
+              type: string
+              description: Error status string
+
+tags:
+  - name: Analysis
+    description: Text tone analysis operations
+

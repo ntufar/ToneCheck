@@ -1,0 +1,214 @@
+openapi: 3.0.3
+info:
+  title: Claude API Integration
+  description: |
+    Contract for integrating with Anthropic Claude API for generating alternative text suggestions.
+    Used by ToneCheck to provide users with improved phrasings that maintain intent while improving tone.
+  version: 1.0.0
+  contact:
+    name: Anthropic Claude API Documentation
+    url: https://docs.anthropic.com/claude/reference
+
+servers:
+  - url: https://api.anthropic.com/v1
+    description: Claude API production server
+
+paths:
+  /messages:
+    post:
+      summary: Generate alternative text suggestions
+      description: |
+        Sends text to Claude API with a system prompt to generate 2-3 alternative phrasings
+        that maintain the original intent while improving tone.
+      operationId: generateSuggestions
+      security:
+        - ApiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SuggestionRequest'
+            examples:
+              basic:
+                value:
+                  model: claude-3-haiku-20240307
+                  max_tokens: 500
+                  system: "You are a helpful assistant that rewrites text to maintain the original intent while improving tone. Your goal is to make text sound more professional, respectful, and less aggressive without changing the core message."
+                  messages:
+                    - role: user
+                      content: "The following text was flagged as potentially aggressive. Please provide 2-3 alternative phrasings that maintain the original intent but use a more appropriate, professional tone:\n\nThis is terrible and you should fix it immediately!\n\n[Context: This text was flagged for: toxicity with a score of 75%]\n\nProvide only the alternative phrasings, one per line, without explanations."
+      responses:
+        '200':
+          description: Successful suggestion generation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuggestionResponse'
+              examples:
+                success:
+                  value:
+                    id: msg_01XFDUDYJgAACzvnptvVoYEL
+                    type: message
+                    role: assistant
+                    content:
+                      - type: text
+                        text: "1. This needs to be addressed and fixed as soon as possible.\n2. I'd appreciate it if you could look into fixing this issue.\n3. Could we work together to resolve this problem?"
+                    model: claude-3-haiku-20240307
+                    stop_reason: end_turn
+                    stop_sequence: null
+        '400':
+          description: Invalid request (missing content, invalid format)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Invalid or missing API key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '429':
+          description: Rate limit exceeded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: API key
+      description: User-provided Claude API key (format: "x-api-key: YOUR_API_KEY" in header)
+
+  schemas:
+    SuggestionRequest:
+      type: object
+      required:
+        - model
+        - max_tokens
+        - messages
+      properties:
+        model:
+          type: string
+          enum:
+            - claude-3-haiku-20240307
+            - claude-3-sonnet-20240229
+            - claude-3-opus-20240229
+          default: claude-3-haiku-20240307
+          description: Claude model to use (Haiku recommended for cost/performance)
+        max_tokens:
+          type: integer
+          minimum: 1
+          maximum: 4096
+          default: 500
+          description: Maximum tokens in response (500 sufficient for 2-3 suggestions)
+        system:
+          type: string
+          description: System prompt defining Claude's role and behavior
+          example: "You are a helpful assistant that rewrites text to maintain the original intent while improving tone."
+        messages:
+          type: array
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/Message'
+          description: Conversation messages (typically single user message with original text and context)
+
+    Message:
+      type: object
+      required:
+        - role
+        - content
+      properties:
+        role:
+          type: string
+          enum:
+            - user
+            - assistant
+          description: Message role
+        content:
+          oneOf:
+            - type: string
+              description: Text content (simple format)
+            - type: array
+              items:
+                $ref: '#/components/schemas/ContentBlock'
+              description: Structured content blocks
+          example: "The following text was flagged as potentially aggressive..."
+
+    ContentBlock:
+      type: object
+      required:
+        - type
+      properties:
+        type:
+          type: string
+          enum:
+            - text
+          description: Content block type
+        text:
+          type: string
+          description: Text content
+
+    SuggestionResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Message ID
+        type:
+          type: string
+          enum:
+            - message
+          description: Response type
+        role:
+          type: string
+          enum:
+            - assistant
+          description: Response role
+        content:
+          type: array
+          items:
+            $ref: '#/components/schemas/ContentBlock'
+          description: Generated suggestions (text blocks)
+        model:
+          type: string
+          description: Model used for generation
+        stop_reason:
+          type: string
+          enum:
+            - end_turn
+            - max_tokens
+            - stop_sequence
+          description: Reason generation stopped
+        stop_sequence:
+          type: string
+          nullable: true
+          description: Stop sequence if applicable
+
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: object
+          properties:
+            type:
+              type: string
+              description: Error type
+            message:
+              type: string
+              description: Error message
+
+tags:
+  - name: Suggestions
+    description: Text suggestion generation operations
+

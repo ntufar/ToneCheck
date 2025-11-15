@@ -1,0 +1,358 @@
+openapi: 3.0.3
+info:
+  title: ToneCheck Extension Internal API
+  description: |
+    Internal message passing API between ToneCheck extension components.
+    Defines the contract for communication between content scripts, background worker, and popup/options pages.
+  version: 1.0.0
+
+servers:
+  - url: browser.runtime
+    description: WebExtension runtime message passing
+
+paths:
+  /analyze:
+    post:
+      summary: Request tone analysis
+      description: |
+        Content script sends text to background worker for tone analysis.
+        Background worker calls Perspective API and returns results.
+      operationId: requestAnalysis
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AnalysisRequest'
+      responses:
+        '200':
+          description: Analysis completed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AnalysisResponse'
+        '400':
+          description: Invalid request (missing text, API key not configured)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: API error or network failure
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /suggestions:
+    post:
+      summary: Request alternative suggestions
+      description: |
+        Content script requests alternative phrasings for flagged text.
+        Background worker calls Claude API or Gemini API (based on user's provider selection) and returns suggestions.
+      operationId: requestSuggestions
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SuggestionRequest'
+      responses:
+        '200':
+          description: Suggestions generated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuggestionResponse'
+        '400':
+          description: Invalid request (missing text, API key not configured)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: API error or network failure
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /settings/get:
+    get:
+      summary: Get user settings
+      description: |
+        Popup/options page requests current user settings.
+        Background worker retrieves from browser.storage.local.
+      operationId: getSettings
+      responses:
+        '200':
+          description: Settings retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SettingsResponse'
+
+  /settings/update:
+    post:
+      summary: Update user settings
+      description: |
+        Popup/options page updates user settings.
+        Background worker encrypts API keys and saves to browser.storage.local.
+      operationId: updateSettings
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SettingsUpdateRequest'
+      responses:
+        '200':
+          description: Settings updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SettingsResponse'
+        '400':
+          description: Invalid settings (invalid threshold, etc.)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+components:
+  schemas:
+    AnalysisRequest:
+      type: object
+      required:
+        - text
+        - fieldId
+        - url
+      properties:
+        text:
+          type: string
+          description: Text content to analyze
+          maxLength: 20000
+          example: "This is a test message"
+        fieldId:
+          type: string
+          description: Unique identifier for the text field
+          example: "gmail-compose-textarea-123"
+        url:
+          type: string
+          format: uri
+          description: URL of the page containing the text field
+          example: "https://mail.google.com/mail/u/0/#inbox"
+
+    AnalysisResponse:
+      type: object
+      required:
+        - requestId
+        - toxicity
+        - severeToxicity
+        - identityAttack
+        - insult
+        - profanity
+        - threat
+        - overallAggression
+      properties:
+        requestId:
+          type: string
+          description: Unique identifier for this analysis request
+        toxicity:
+          type: number
+          format: float
+          minimum: 0.0
+          maximum: 1.0
+          description: Toxicity score
+        severeToxicity:
+          type: number
+          format: float
+          minimum: 0.0
+          maximum: 1.0
+          description: Severe toxicity score
+        identityAttack:
+          type: number
+          format: float
+          minimum: 0.0
+          maximum: 1.0
+          description: Identity attack score
+        insult:
+          type: number
+          format: float
+          minimum: 0.0
+          maximum: 1.0
+          description: Insult score
+        profanity:
+          type: number
+          format: float
+          minimum: 0.0
+          maximum: 1.0
+          description: Profanity score
+        threat:
+          type: number
+          format: float
+          minimum: 0.0
+          maximum: 1.0
+          description: Threat score
+        overallAggression:
+          type: number
+          format: float
+          minimum: 0.0
+          maximum: 100.0
+          description: Calculated overall aggression percentage
+
+    SuggestionRequest:
+      type: object
+      required:
+        - text
+        - flaggedAttributes
+        - requestId
+      properties:
+        text:
+          type: string
+          description: Original flagged text
+          example: "This is terrible and you should fix it immediately!"
+        flaggedAttributes:
+          type: array
+          items:
+            type: string
+            enum:
+              - toxicity
+              - insult
+              - threat
+              - profanity
+          description: Attributes that triggered the flag
+          example: ["toxicity", "insult"]
+        requestId:
+          type: string
+          description: Reference to the tone analysis result
+        aggressionScore:
+          type: number
+          format: float
+          description: Overall aggression percentage
+          example: 75.5
+
+    SuggestionResponse:
+      type: object
+      required:
+        - suggestions
+      properties:
+        suggestions:
+          type: array
+          items:
+            type: string
+          minItems: 2
+          maxItems: 3
+          description: Alternative phrasings (2-3 suggestions)
+          example:
+            - "This needs to be addressed and fixed as soon as possible."
+            - "I'd appreciate it if you could look into fixing this issue."
+            - "Could we work together to resolve this problem?"
+
+    SettingsUpdateRequest:
+      type: object
+      properties:
+        apiKeyToneAnalysis:
+          type: string
+          nullable: true
+          description: Perspective API key (will be encrypted)
+        apiKeySuggestions:
+          type: string
+          nullable: true
+          description: Claude or Gemini API key (will be encrypted, depends on suggestionProvider)
+        suggestionProvider:
+          type: string
+          enum:
+            - claude
+            - gemini
+          default: gemini
+          description: Suggestion service provider (Claude or Gemini)
+        sensitivityThreshold:
+          type: string
+          enum:
+            - low
+            - medium
+            - high
+          description: Sensitivity threshold level
+        disabledWebsites:
+          type: array
+          items:
+            type: string
+          description: List of website domains to disable extension on
+        extensionEnabled:
+          type: boolean
+          description: Global enable/disable toggle
+
+    SettingsResponse:
+      type: object
+      required:
+        - suggestionProvider
+        - sensitivityThreshold
+        - disabledWebsites
+        - extensionEnabled
+        - lastUpdated
+      properties:
+        apiKeyToneAnalysis:
+          type: string
+          nullable: true
+          description: Encrypted API key (never returned in plain text, only "***" if set)
+        apiKeySuggestions:
+          type: string
+          nullable: true
+          description: Encrypted API key (never returned in plain text, only "***" if set)
+        suggestionProvider:
+          type: string
+          enum:
+            - claude
+            - gemini
+          default: gemini
+          description: Current suggestion service provider
+        sensitivityThreshold:
+          type: string
+          enum:
+            - low
+            - medium
+            - high
+          description: Current sensitivity threshold
+        disabledWebsites:
+          type: array
+          items:
+            type: string
+          description: List of disabled websites
+        extensionEnabled:
+          type: boolean
+          description: Extension enabled state
+        lastUpdated:
+          type: number
+          description: Unix timestamp of last update
+
+    ErrorResponse:
+      type: object
+      required:
+        - error
+        - message
+      properties:
+        error:
+          type: string
+          description: Error code
+          enum:
+            - INVALID_REQUEST
+            - API_KEY_MISSING
+            - API_ERROR
+            - NETWORK_ERROR
+            - RATE_LIMIT_EXCEEDED
+        message:
+          type: string
+          description: Human-readable error message
+        details:
+          type: object
+          description: Additional error details (optional)
+
+tags:
+  - name: Analysis
+    description: Tone analysis operations
+  - name: Suggestions
+    description: Alternative text suggestion operations
+  - name: Settings
+    description: User settings management
+

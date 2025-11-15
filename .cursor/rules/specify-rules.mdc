@@ -1,0 +1,29 @@
+# ToneCheck Development Guidelines
+
+Auto-generated from all feature plans. Last updated: 2025-11-15
+
+## Active Technologies
+
+- JavaScript/TypeScript (ES2020+), WebExtension Manifest V3 (001-tonecheck-mvp)
+
+## Project Structure
+
+```text
+src/
+tests/
+```
+
+## Commands
+
+npm test && npm run lint
+
+## Code Style
+
+JavaScript/TypeScript (ES2020+), WebExtension Manifest V3: Follow standard conventions
+
+## Recent Changes
+
+- 001-tonecheck-mvp: Added JavaScript/TypeScript (ES2020+), WebExtension Manifest V3
+
+<!-- MANUAL ADDITIONS START -->
+<!-- MANUAL ADDITIONS END -->
