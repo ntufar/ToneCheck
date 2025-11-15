@@ -57,14 +57,14 @@ Phase 6 (Polish & Cross-Cutting)
 
 ### Setup Tasks
 
-- [ ] T001 Create project structure per implementation plan in `/Users/ntufar/projects/ToneCheck/src/`
-- [ ] T002 Initialize package.json with TypeScript, WebExtension dependencies in `/Users/ntufar/projects/ToneCheck/package.json`
-- [ ] T003 Create TypeScript configuration (tsconfig.json) in `/Users/ntufar/projects/ToneCheck/tsconfig.json`
-- [ ] T004 Create WebExtension manifest.json (Manifest V3) in `/Users/ntufar/projects/ToneCheck/src/manifest.json`
-- [ ] T005 [P] Create build configuration (webpack/vite) in `/Users/ntufar/projects/ToneCheck/`
-- [ ] T006 [P] Setup Jest testing framework with @webextension-polyfill/testing in `/Users/ntufar/projects/ToneCheck/`
-- [ ] T007 [P] Create .gitignore and .npmignore files in `/Users/ntufar/projects/ToneCheck/`
-- [ ] T008 [P] Create README.md with setup instructions in `/Users/ntufar/projects/ToneCheck/README.md`
+- [X] T001 Create project structure per implementation plan in `/Users/ntufar/projects/ToneCheck/src/`
+- [X] T002 Initialize package.json with TypeScript, WebExtension dependencies in `/Users/ntufar/projects/ToneCheck/package.json`
+- [X] T003 Create TypeScript configuration (tsconfig.json) in `/Users/ntufar/projects/ToneCheck/tsconfig.json`
+- [X] T004 Create WebExtension manifest.json (Manifest V3) in `/Users/ntufar/projects/ToneCheck/src/manifest.json`
+- [X] T005 [P] Create build configuration (webpack/vite) in `/Users/ntufar/projects/ToneCheck/`
+- [X] T006 [P] Setup Jest testing framework with @webextension-polyfill/testing in `/Users/ntufar/projects/ToneCheck/`
+- [X] T007 [P] Create .gitignore and .npmignore files in `/Users/ntufar/projects/ToneCheck/`
+- [X] T008 [P] Create README.md with setup instructions in `/Users/ntufar/projects/ToneCheck/README.md`
 
 ## Phase 2: Foundational
 
@@ -74,12 +74,12 @@ Phase 6 (Polish & Cross-Cutting)
 
 ### Foundational Tasks
 
-- [ ] T009 [P] Create shared types (TextAnalysisRequest, ToneAnalysisResult, UserSettings, AlternativeSuggestion) in `/Users/ntufar/projects/ToneCheck/src/shared/types.ts`
-- [ ] T010 [P] Create shared constants (sensitivity thresholds, API endpoints, debounce timing) in `/Users/ntufar/projects/ToneCheck/src/shared/constants.ts`
-- [ ] T011 [P] Implement encryption utilities using Web Crypto API in `/Users/ntufar/projects/ToneCheck/src/shared/encryption.ts`
-- [ ] T012 [P] Implement storage layer for UserSettings in `/Users/ntufar/projects/ToneCheck/src/background/storage.ts`
-- [ ] T013 [P] Create message handler foundation (message types, routing structure) in `/Users/ntufar/projects/ToneCheck/src/background/message-handler.ts`
-- [ ] T014 [P] Implement rate limiter (1 QPS queue management) in `/Users/ntufar/projects/ToneCheck/src/background/rate-limiter.ts`
+- [X] T009 [P] Create shared types (TextAnalysisRequest, ToneAnalysisResult, UserSettings, AlternativeSuggestion) in `/Users/ntufar/projects/ToneCheck/src/shared/types.ts`
+- [X] T010 [P] Create shared constants (sensitivity thresholds, API endpoints, debounce timing) in `/Users/ntufar/projects/ToneCheck/src/shared/constants.ts`
+- [X] T011 [P] Implement encryption utilities using Web Crypto API in `/Users/ntufar/projects/ToneCheck/src/shared/encryption.ts`
+- [X] T012 [P] Implement storage layer for UserSettings in `/Users/ntufar/projects/ToneCheck/src/background/storage.ts`
+- [X] T013 [P] Create message handler foundation (message types, routing structure) in `/Users/ntufar/projects/ToneCheck/src/background/message-handler.ts`
+- [X] T014 [P] Implement rate limiter (1 QPS queue management) in `/Users/ntufar/projects/ToneCheck/src/background/rate-limiter.ts`
 
 ## Phase 3: User Story 1 - Real-Time Tone Analysis (P1)
 
@@ -99,45 +99,45 @@ Phase 6 (Polish & Cross-Cutting)
 
 ### US1: Content Script - Field Detection
 
-- [ ] T015 [US1] Implement field detector to identify textarea, input[type="text"], and contenteditable elements in `/Users/ntufar/projects/ToneCheck/src/content/field-detector.ts`
-- [ ] T016 [US1] Add support for major platforms (Gmail, Reddit, Twitter/X, LinkedIn, Facebook) in `/Users/ntufar/projects/ToneCheck/src/content/field-detector.ts`
-- [ ] T017 [US1] Implement generic text area detection (best effort) in `/Users/ntufar/projects/ToneCheck/src/content/field-detector.ts`
-- [ ] T018 [US1] Add debouncing logic (500ms after user stops typing) in `/Users/ntufar/projects/ToneCheck/src/content/field-detector.ts`
+- [X] T015 [US1] Implement field detector to identify textarea, input[type="text"], and contenteditable elements in `/Users/ntufar/projects/ToneCheck/src/content/field-detector.ts`
+- [X] T016 [US1] Add support for major platforms (Gmail, Reddit, Twitter/X, LinkedIn, Facebook) in `/Users/ntufar/projects/ToneCheck/src/content/field-detector.ts`
+- [X] T017 [US1] Implement generic text area detection (best effort) in `/Users/ntufar/projects/ToneCheck/src/content/field-detector.ts`
+- [X] T018 [US1] Add debouncing logic (500ms after user stops typing) in `/Users/ntufar/projects/ToneCheck/src/content/field-detector.ts`
 
 ### US1: Background Worker - API Client
 
-- [ ] T019 [US1] Implement Perspective API client with authentication in `/Users/ntufar/projects/ToneCheck/src/background/api-client.ts`
-- [ ] T020 [US1] Add request formatting (comment text, requestedAttributes) in `/Users/ntufar/projects/ToneCheck/src/background/api-client.ts`
-- [ ] T021 [US1] Implement response parsing (extract toxicity, insult, threat, profanity scores) in `/Users/ntufar/projects/ToneCheck/src/background/api-client.ts`
-- [ ] T022 [US1] Calculate overallAggression percentage (max of toxicity, insult, threat) * 100 in `/Users/ntufar/projects/ToneCheck/src/background/api-client.ts`
-- [ ] T023 [US1] Add error handling (400, 401, 429, 500 responses) in `/Users/ntufar/projects/ToneCheck/src/background/api-client.ts`
-- [ ] T024 [US1] Implement chunked analysis for text >3000 characters in `/Users/ntufar/projects/ToneCheck/src/background/api-client.ts`
-- [ ] T025 [US1] Integrate rate limiter with API client (1 QPS throttling) in `/Users/ntufar/projects/ToneCheck/src/background/api-client.ts`
+- [X] T019 [US1] Implement Perspective API client with authentication in `/Users/ntufar/projects/ToneCheck/src/background/api-client.ts`
+- [X] T020 [US1] Add request formatting (comment text, requestedAttributes) in `/Users/ntufar/projects/ToneCheck/src/background/api-client.ts`
+- [X] T021 [US1] Implement response parsing (extract toxicity, insult, threat, profanity scores) in `/Users/ntufar/projects/ToneCheck/src/background/api-client.ts`
+- [X] T022 [US1] Calculate overallAggression percentage (max of toxicity, insult, threat) * 100 in `/Users/ntufar/projects/ToneCheck/src/background/api-client.ts`
+- [X] T023 [US1] Add error handling (400, 401, 429, 500 responses) in `/Users/ntufar/projects/ToneCheck/src/background/api-client.ts`
+- [X] T024 [US1] Implement chunked analysis for text >3000 characters in `/Users/ntufar/projects/ToneCheck/src/background/api-client.ts`
+- [X] T025 [US1] Integrate rate limiter with API client (1 QPS throttling) in `/Users/ntufar/projects/ToneCheck/src/background/api-client.ts`
 
 ### US1: Background Worker - Message Handling
 
-- [ ] T026 [US1] Implement /analyze message handler in `/Users/ntufar/projects/ToneCheck/src/background/message-handler.ts`
-- [ ] T027 [US1] Add validation for analysis requests (text, fieldId, url) in `/Users/ntufar/projects/ToneCheck/src/background/message-handler.ts`
-- [ ] T028 [US1] Integrate API client with message handler in `/Users/ntufar/projects/ToneCheck/src/background/message-handler.ts`
-- [ ] T029 [US1] Return AnalysisResponse with all tone scores in `/Users/ntufar/projects/ToneCheck/src/background/message-handler.ts`
-- [ ] T030 [US1] Handle API errors gracefully (return ErrorResponse, don't block) in `/Users/ntufar/projects/ToneCheck/src/background/message-handler.ts`
+- [X] T026 [US1] Implement /analyze message handler in `/Users/ntufar/projects/ToneCheck/src/background/message-handler.ts`
+- [X] T027 [US1] Add validation for analysis requests (text, fieldId, url) in `/Users/ntufar/projects/ToneCheck/src/background/message-handler.ts`
+- [X] T028 [US1] Integrate API client with message handler in `/Users/ntufar/projects/ToneCheck/src/background/message-handler.ts`
+- [X] T029 [US1] Return AnalysisResponse with all tone scores in `/Users/ntufar/projects/ToneCheck/src/background/message-handler.ts`
+- [X] T030 [US1] Handle API errors gracefully (return ErrorResponse, don't block) in `/Users/ntufar/projects/ToneCheck/src/background/message-handler.ts`
 
 ### US1: Content Script - UI Injection
 
-- [ ] T031 [US1] Implement UI injector to create tone indicator elements in `/Users/ntufar/projects/ToneCheck/src/content/ui-injector.ts`
-- [ ] T032 [US1] Position indicators near text fields (non-intrusive placement) in `/Users/ntufar/projects/ToneCheck/src/content/ui-injector.ts`
-- [ ] T033 [US1] Implement tone indicator component with color coding (green/yellow/red) in `/Users/ntufar/projects/ToneCheck/src/content/tone-indicator.ts`
-- [ ] T034 [US1] Display loading indicator (spinner) during analysis in `/Users/ntufar/projects/ToneCheck/src/content/tone-indicator.ts`
-- [ ] T035 [US1] Show tone scores and category breakdown when flagged in `/Users/ntufar/projects/ToneCheck/src/content/tone-indicator.ts`
-- [ ] T036 [US1] Add smooth animations (fade in) for indicator appearance in `/Users/ntufar/projects/ToneCheck/src/content/tone-indicator.ts`
-- [ ] T037 [US1] Support multiple text fields on same page (independent indicators) in `/Users/ntufar/projects/ToneCheck/src/content/ui-injector.ts`
-- [ ] T038 [US1] Handle non-blocking error display (warning message, allow normal typing) in `/Users/ntufar/projects/ToneCheck/src/content/tone-indicator.ts`
-- [ ] T039 [US1] Add rate limit notification when queue exceeds 3 requests in `/Users/ntufar/projects/ToneCheck/src/content/tone-indicator.ts`
+- [X] T031 [US1] Implement UI injector to create tone indicator elements in `/Users/ntufar/projects/ToneCheck/src/content/ui-injector.ts`
+- [X] T032 [US1] Position indicators near text fields (non-intrusive placement) in `/Users/ntufar/projects/ToneCheck/src/content/ui-injector.ts`
+- [X] T033 [US1] Implement tone indicator component with color coding (green/yellow/red) in `/Users/ntufar/projects/ToneCheck/src/content/tone-indicator.ts`
+- [X] T034 [US1] Display loading indicator (spinner) during analysis in `/Users/ntufar/projects/ToneCheck/src/content/tone-indicator.ts`
+- [X] T035 [US1] Show tone scores and category breakdown when flagged in `/Users/ntufar/projects/ToneCheck/src/content/tone-indicator.ts`
+- [X] T036 [US1] Add smooth animations (fade in) for indicator appearance in `/Users/ntufar/projects/ToneCheck/src/content/tone-indicator.ts`
+- [X] T037 [US1] Support multiple text fields on same page (independent indicators) in `/Users/ntufar/projects/ToneCheck/src/content/ui-injector.ts`
+- [X] T038 [US1] Handle non-blocking error display (warning message, allow normal typing) in `/Users/ntufar/projects/ToneCheck/src/content/tone-indicator.ts`
+- [X] T039 [US1] Add rate limit notification when queue exceeds 3 requests in `/Users/ntufar/projects/ToneCheck/src/content/tone-indicator.ts`
 
 ### US1: Integration
 
-- [ ] T040 [US1] Connect field detector → debounce → message to background → API call → response → UI update flow in `/Users/ntufar/projects/ToneCheck/src/content/field-detector.ts`
-- [ ] T041 [US1] Test end-to-end: type text → pause → analysis → indicator appears in `/Users/ntufar/projects/ToneCheck/`
+- [X] T040 [US1] Connect field detector → debounce → message to background → API call → response → UI update flow in `/Users/ntufar/projects/ToneCheck/src/content/field-detector.ts`
+- [X] T041 [US1] Test end-to-end: type text → pause → analysis → indicator appears in `/Users/ntufar/projects/ToneCheck/`
 
 ## Phase 4: User Story 2 - Message Review and Suggestions (P2)
 
